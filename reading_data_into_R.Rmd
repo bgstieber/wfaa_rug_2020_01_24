@@ -1,0 +1,65 @@
+---
+title: "Reading Data into R"
+author: "Brad Stieber"
+date: "Presented to WFAA R Users Group on 2020-01-21"
+output: html_document
+---
+
+<!--
+
+how many different ways are there to read data in to R?
+
+1. read.csv (stringsAsFactors)
+2. read_csv
+3. read_excel
+4. fread
+5. database
+
+how many different data types are there?
+
+1. gold standard csv
+2. good csv, but weird strings for NA
+3. decent csv, but data doesn't start at first row 
+4. decent csv, but header row is detached from data
+5. excel file
+6. a big honkin file
+7. tables/query in SQL
+
+
+data set creation:
+
+write.table(head(iris), 
+            file = "iris.txt", sep = ",", row.names = FALSE)
+
+write.table(head(iris), 
+            file = "iris_weird_NA.txt", sep = ",", row.names = FALSE)
+
+write.table(head(iris), 
+            file = "iris_pipe_delim.txt", sep = "|", row.names = FALSE)
+
+-->
+
+## Introduction
+
+
+## Examples {.tabset .tabset-pills}
+
+
+
+### read.csv
+
+
+
+### readr::read_csv
+
+
+
+### data.table::fread
+
+
+
+### readxl::read_excel
+
+
+
+### DBI::dbGetQuery

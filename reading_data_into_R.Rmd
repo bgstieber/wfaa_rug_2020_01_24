@@ -121,19 +121,20 @@ Two things are weird with this data
 ```{r}
 # first, get column names from first row of data
 column_names <- read.table("data/iris_pipe_delim_edit.txt",
-                           sep = "|", 
-                           nrows = 1, 
+                           sep = "|", # pipe delim
+                           nrows = 1, # only read first row
                            stringsAsFactors = FALSE,
-                           header = FALSE)
+                           header = FALSE) # no headers
+# convert to a character vector
+(column_names <- as.character(column_names))
 # then, read in remaining rows, using `skip` argument
 full_data <- read.table("data/iris_pipe_delim_edit.txt",
                         sep = "|",
-                        skip = 2,
+                        skip = 2, # skip first 2 rows
                         stringsAsFactors = FALSE,
-                        col.names = as.character(column_names))
+                        col.names = column_names)
 
 tail(full_data)
-
 ```
 
 #### Missing Values are Coded Strangely

@@ -1543,7 +1543,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Reading Data into R</h1>
 <h4 class="author">Brad Stieber</h4>
-<h4 class="date">Presented to WFAA R Users Group on 2020-01-21</h4>
+<h4 class="date">Presented to WFAA R Users Group on 2020-01-24</h4>
 
 </div>
 
@@ -1585,6 +1585,14 @@ write.table(head(iris),
 -->
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
+<p>Today, we’re going to be taking a quick ride through a few ways to get data from flat files (txt, csv, excel) into R.</p>
+<p>Here are links to the documentation for each of the functions discussed.</p>
+<ul>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html"><code>read.table</code></a></li>
+<li><a href="https://readr.tidyverse.org/reference/read_delim.html"><code>readr::read_delim</code></a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>data.table::fread</code></a></li>
+<li><a href="https://readxl.tidyverse.org/reference/read_excel.html"><code>readxl::read_excel</code></a></li>
+</ul>
 </div>
 <div id="examples" class="section level2">
 <h2>Examples</h2>
@@ -1637,16 +1645,20 @@ dat2$Species</code></pre>
 </ol>
 <pre class="r"><code># first, get column names from first row of data
 column_names &lt;- read.table(&quot;data/iris_pipe_delim_edit.txt&quot;,
-                           sep = &quot;|&quot;, 
-                           nrows = 1, 
+                           sep = &quot;|&quot;, # pipe delim
+                           nrows = 1, # only read first row
                            stringsAsFactors = FALSE,
-                           header = FALSE)
-# then, read in remaining rows, using `skip` argument
+                           header = FALSE) # no headers
+# convert to a character vector
+(column_names &lt;- as.character(column_names))</code></pre>
+<pre><code>## [1] &quot;Sepal.Length&quot; &quot;Sepal.Width&quot;  &quot;Petal.Length&quot; &quot;Petal.Width&quot; 
+## [5] &quot;Species&quot;</code></pre>
+<pre class="r"><code># then, read in remaining rows, using `skip` argument
 full_data &lt;- read.table(&quot;data/iris_pipe_delim_edit.txt&quot;,
                         sep = &quot;|&quot;,
-                        skip = 2,
+                        skip = 2, # skip first 2 rows
                         stringsAsFactors = FALSE,
-                        col.names = as.character(column_names))
+                        col.names = column_names)
 
 tail(full_data)</code></pre>
 <pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species

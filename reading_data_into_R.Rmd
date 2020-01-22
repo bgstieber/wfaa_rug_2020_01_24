@@ -171,6 +171,23 @@ dat_default_NA$Petal.Length
 
 ### readr::read_csv
 
+The next function I want to talk about is `read_csv` from the [__`readr`__](https://readr.tidyverse.org/) package.
+
+This function is really helpful, and it's pretty much my go-to function to read in flat files into R. It has good defaults, and reads in the data as a [`tibble`](https://tibble.tidyverse.org/) as opposed to a `data.frame`. This makes printing the data to your console a lot better. 
+
+Rather than looking at the boring iris data, we'll instead read some data from the internet. 
+
+```{r cache = TRUE}
+library(readr)
+
+u <- "https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv"
+
+nfl_data <- read_csv(u)
+
+tail(nfl_data)
+```
+
+
 
 
 ### data.table::fread

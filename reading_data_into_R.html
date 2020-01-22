@@ -1699,6 +1699,58 @@ dat_default_NA$Sepal.Width</code></pre>
 </div>
 <div id="readrread_csv" class="section level3">
 <h3>readr::read_csv</h3>
+<p>The next function I want to talk about is <code>read_csv</code> from the <a href="https://readr.tidyverse.org/"><strong><code>readr</code></strong></a> package.</p>
+<p>This function is really helpful, and it’s pretty much my go-to function to read in flat files into R. It has good defaults, and reads in the data as a <a href="https://tibble.tidyverse.org/"><code>tibble</code></a> as opposed to a <code>data.frame</code>. This makes printing the data to your console a lot better.</p>
+<p>Rather than looking at the boring iris data, we’ll instead read some data from the internet.</p>
+<pre class="r"><code>library(readr)
+
+u &lt;- &quot;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&quot;
+
+nfl_data &lt;- read_csv(u)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_logical(),
+##   date = col_date(format = &quot;&quot;),
+##   season = col_double(),
+##   neutral = col_double(),
+##   team1 = col_character(),
+##   team2 = col_character(),
+##   elo1_pre = col_double(),
+##   elo2_pre = col_double(),
+##   elo_prob1 = col_double(),
+##   elo_prob2 = col_double(),
+##   elo1_post = col_double(),
+##   elo2_post = col_double(),
+##   score1 = col_double(),
+##   score2 = col_double()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>## Warning: 230633 parsing failures.
+##  row     col           expected actual                                                       file
+## 1054 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
+## 1115 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
+## 1169 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
+## 1224 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
+## 1280 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
+## .... ....... .................. ...... ..........................................................
+## See problems(...) for more details.</code></pre>
+<pre class="r"><code>tail(nfl_data)</code></pre>
+<pre><code>## # A tibble: 6 x 30
+##   date       season neutral playoff team1 team2 elo1_pre elo2_pre elo_prob1
+##   &lt;date&gt;      &lt;dbl&gt;   &lt;dbl&gt; &lt;lgl&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 2020-01-11   2019       0 NA      BAL   TEN      1753.    1615.     0.763
+## 2 2020-01-12   2019       0 NA      KC    HOU      1695.    1552.     0.767
+## 3 2020-01-12   2019       0 NA      GB    SEA      1632.    1579.     0.663
+## 4 2020-01-19   2019       0 NA      KC    TEN      1708.    1663.     0.653
+## 5 2020-01-19   2019       0 NA      SF    GB       1652.    1643.     0.604
+## 6 2020-02-02   2019       1 NA      KC    SF       1724.    1674.     0.571
+## # ... with 21 more variables: elo_prob2 &lt;dbl&gt;, elo1_post &lt;dbl&gt;,
+## #   elo2_post &lt;dbl&gt;, qbelo1_pre &lt;lgl&gt;, qbelo2_pre &lt;lgl&gt;, qb1 &lt;lgl&gt;,
+## #   qb2 &lt;lgl&gt;, qb1_value_pre &lt;lgl&gt;, qb2_value_pre &lt;lgl&gt;, qb1_adj &lt;lgl&gt;,
+## #   qb2_adj &lt;lgl&gt;, qbelo_prob1 &lt;lgl&gt;, qbelo_prob2 &lt;lgl&gt;,
+## #   qb1_game_value &lt;lgl&gt;, qb2_game_value &lt;lgl&gt;, qb1_value_post &lt;lgl&gt;,
+## #   qb2_value_post &lt;lgl&gt;, qbelo1_post &lt;lgl&gt;, qbelo2_post &lt;lgl&gt;,
+## #   score1 &lt;dbl&gt;, score2 &lt;dbl&gt;</code></pre>
 </div>
 <div id="data.tablefread" class="section level3">
 <h3>data.table::fread</h3>

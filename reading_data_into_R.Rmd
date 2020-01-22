@@ -47,7 +47,14 @@ write.table(head(iris),
 
 ## Introduction
 
+Today, we're going to be taking a quick ride through a few ways to get data from flat files (txt, csv, excel) into R.
 
+Here are links to the documentation for each of the functions discussed.
+
+- [`read.table`](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html)
+- [`readr::read_delim`](https://readr.tidyverse.org/reference/read_delim.html)
+- [`data.table::fread`](https://rdatatable.gitlab.io/data.table/reference/fread.html)
+- [`readxl::read_excel`](https://readxl.tidyverse.org/reference/read_excel.html)
 
 ## Examples 
 

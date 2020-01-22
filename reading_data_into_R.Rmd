@@ -1,8 +1,12 @@
 ---
 title: "Reading Data into R"
 author: "Brad Stieber"
-date: "Presented to WFAA R Users Group on 2020-01-21"
-output: html_document
+date: "Presented to WFAA R Users Group on 2020-01-24"
+output: 
+  html_document: 
+    toc: yes
+    toc_depth: 4
+    toc_float: true
 ---
 
 <!--
@@ -44,9 +48,8 @@ write.table(head(iris),
 ## Introduction
 
 
-## Examples {.tabset .tabset-pills}
 
-
+## Examples 
 
 ### read.csv
 
@@ -132,7 +135,7 @@ tail(full_data)
 "Sepal.Length","Sepal.Width","Petal.Length","Petal.Width","Species"
 5.1,3.5,1.4,0.2,"setosa"
 4.9,3,1.4,0.2,"setosa"
-4.7,3.2,,0.2,"setosa"
+4.7,3.2,NULL,0.2,"setosa"
 4.6,3.1,1.5,0.2,"setosa"
 5,MISSING,1.4,0.2,"setosa"
 5.4,3.9,9999,0.4,"setosa"
@@ -140,10 +143,23 @@ tail(full_data)
 By default, when you're reading in data with the `read.table`/`read.csv` family of functions, R treats any columns containing the string `"NA"` as an `NA` value. Sometimes we have missing values that take other values, like `999`, `""`, and `NULL`. Using the `na.strings` argument can help us with this. 
 
 ```{r}
-dat_default_NA <- read.table("data/iris_weird_NA_edit.txt")
+dat_default_NA <- read.csv("data/iris_weird_NA_edit.txt",
+                           stringsAsFactors = FALSE)
+
+dat_default_NA$Sepal.Width
+dat_default_NA$Petal.Length
 ```
 
+Since `R` found character values in the `Sepal.Width` and `Petal.Length` columns, it treats those as characters. We know this is wrong, and can fix it using `na.strings`.
 
+```{r}
+dat_default_NA <- read.csv("data/iris_weird_NA_edit.txt",
+                           stringsAsFactors = FALSE,
+                           na.strings = c("NULL", "9999", "MISSING"))
+
+dat_default_NA$Sepal.Width
+dat_default_NA$Petal.Length
+```
 
 ### readr::read_csv
 

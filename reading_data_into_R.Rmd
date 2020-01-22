@@ -31,6 +31,8 @@ data set creation:
 write.table(head(iris), 
             file = "iris.txt", sep = ",", row.names = FALSE)
 
+NAs: 9999 and ""
+
 write.table(head(iris), 
             file = "iris_weird_NA.txt", sep = ",", row.names = FALSE)
 
@@ -48,6 +50,99 @@ write.table(head(iris),
 
 ### read.csv
 
+The first function you probably used to read data into R was [`read.csv`](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html).
+
+Let's suppose you get a basic flat file
+
+```
+"Sepal.Length","Sepal.Width","Petal.Length","Petal.Width","Species"
+5.1,3.5,1.4,0.2,"setosa"
+4.9,3,1.4,0.2,"setosa"
+4.7,3.2,1.3,0.2,"setosa"
+4.6,3.1,1.5,0.2,"setosa"
+5,3.6,1.4,0.2,"setosa"
+5.4,3.9,1.7,0.4,"setosa"
+```
+
+Using `read.csv` results in:
+
+```{r}
+dat <- read.csv("data/iris.txt")
+tail(dat)
+```
+
+But wait, something weird happened with `Species`:
+
+```{r}
+dat$Species
+```
+
+`read.csv` has an argument called `stringsAsFactors`, and its default is TRUE. This means that any string/character type columns you have in your data will be converted to factors (further reading: [stringsAsFactors: An unauthorized biography](https://simplystatistics.org/2015/07/24/stringsasfactors-an-unauthorized-biography/)). This is generally not what we want. 
+
+So, in the event that I use `read.csv` (I typically prefer `readr::read_csv` or `data.table::fread`, discussed below), I set `stringsAsFactors = FALSE`.
+
+```{r}
+dat2 <- read.csv("data/iris.txt", stringsAsFactors = FALSE)
+dat2$Species
+```
+
+`read.csv` works really well without specifying many arguments when your data is nice. What happens if your data is a little messier?
+
+#### Column headers are separated, weird delimiter
+
+Here's the data:
+
+```
+"Sepal.Length"|"Sepal.Width"|"Petal.Length"|"Petal.Width"|"Species"
+----------------------------------------------------------------- 
+5.1|3.5|1.4|0.2|"setosa"
+4.9|3|1.4|0.2|"setosa"
+4.7|3.2|1.3|0.2|"setosa"
+4.6|3.1|1.5|0.2|"setosa"
+5|3.6|1.4|0.2|"setosa"
+5.4|3.9|1.7|0.4|"setosa"
+```
+
+Two things are weird with this data
+
+1. Column headers are separated from the data with `---`
+2. A pipe (`|`) delimiter is used
+
+```{r}
+# first, get column names from first row of data
+column_names <- read.table("data/iris_pipe_delim_edit.txt",
+                           sep = "|", 
+                           nrows = 1, 
+                           stringsAsFactors = FALSE,
+                           header = FALSE)
+# then, read in remaining rows, using `skip` argument
+full_data <- read.table("data/iris_pipe_delim_edit.txt",
+                        sep = "|",
+                        skip = 2,
+                        stringsAsFactors = FALSE,
+                        col.names = as.character(column_names))
+
+tail(full_data)
+
+```
+
+#### Missing Values are Coded Strangely
+
+```
+"Sepal.Length","Sepal.Width","Petal.Length","Petal.Width","Species"
+5.1,3.5,1.4,0.2,"setosa"
+4.9,3,1.4,0.2,"setosa"
+4.7,3.2,,0.2,"setosa"
+4.6,3.1,1.5,0.2,"setosa"
+5,MISSING,1.4,0.2,"setosa"
+5.4,3.9,9999,0.4,"setosa"
+```
+By default, when you're reading in data with the `read.table`/`read.csv` family of functions, R treats any columns containing the string `"NA"` as an `NA` value. Sometimes we have missing values that take other values, like `999`, `""`, and `NULL`. Using the `na.strings` argument can help us with this. 
+
+```{r}
+dat_default_NA <- read.table("data/iris_weird_NA_edit.txt")
+```
+
 
 
 ### readr::read_csv
@@ -61,5 +156,3 @@ write.table(head(iris),
 ### readxl::read_excel
 
 
-
-### DBI::dbGetQuery

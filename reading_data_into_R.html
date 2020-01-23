@@ -1700,12 +1700,11 @@ dat_default_NA$Sepal.Width</code></pre>
 </div>
 <div id="readrread_csv" class="section level3">
 <h3>readr::read_csv</h3>
+<pre class="r"><code>library(readr)</code></pre>
 <p>The next function I want to talk about is <code>read_csv</code> from the <a href="https://readr.tidyverse.org/"><strong><code>readr</code></strong></a> package.</p>
 <p>This function is really helpful, and it’s pretty much my go-to function to read in flat files into R. It has good and well-reasoned defaults (no <code>stringsAsFactors = FALSE</code>!), and reads in the data as a <a href="https://tibble.tidyverse.org/"><code>tibble</code></a> as opposed to a <code>data.frame</code>. This makes printing the data to your console a lot better.</p>
 <p>Rather than looking at the boring iris data, we’ll instead read some data from the internet.</p>
-<pre class="r"><code>library(readr)
-
-u1 &lt;- &quot;https://raw.githubusercontent.com/fivethirtyeight/data&quot;
+<pre class="r"><code>u1 &lt;- &quot;https://raw.githubusercontent.com/fivethirtyeight/data&quot;
 
 u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 
@@ -1752,9 +1751,111 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 </div>
 <div id="data.tablefread" class="section level3">
 <h3>data.table::fread</h3>
+<pre class="r"><code>library(data.table)</code></pre>
 <p>Now, sometimes I’m dealing with some really nasty data set that is large and unwieldy. <code>read_csv</code> is good for maybe 80-90% of data inputs, but sometimes we need something more powerful.</p>
 <p>There is where the <code>fread</code> function from the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package comes in handy (further reading: <a href="https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread">Convenience features of fread</a>).</p>
 <p>By <a href="https://jozef.io/r917-fread-comparisons/">some measures</a>, <code>fread</code> can be about 6 times faster than <code>read.csv</code> and about 2.5 times faster than <code>read_csv</code>.</p>
+<p>One of the best parts of <code>fread</code> is that you do not necessarily have to specify the delimiter in your data.</p>
+<p>For example, the pipe delimited data from above is read in easily.</p>
+<pre class="r"><code>pipe_dat &lt;- fread(&quot;data/iris_pipe_delim_edit.txt&quot;,
+                  skip = 2,
+                  verbose = TRUE,
+                  col.names = names(iris))</code></pre>
+<pre><code>## omp_get_num_procs()==8
+## R_DATATABLE_NUM_PROCS_PERCENT==&quot;&quot; (default 50)
+## R_DATATABLE_NUM_THREADS==&quot;&quot;
+## omp_get_thread_limit()==2147483647
+## omp_get_max_threads()==8
+## OMP_THREAD_LIMIT==&quot;&quot;
+## OMP_NUM_THREADS==&quot;&quot;
+## data.table is using 4 threads. This is set on startup, and by setDTthreads(). See ?setDTthreads.
+## RestoreAfterFork==true
+## Input contains no \n. Taking this to be a filename to open
+## [01] Check arguments
+##   Using 4 threads (omp_get_max_threads()=8, nth=4)
+##   NAstrings = [&lt;&lt;NA&gt;&gt;]
+##   None of the NAstrings look like numbers.
+##   skip num lines = 2
+##   show progress = 0
+##   0/1 column will be read as integer
+## [02] Opening the file
+##   Opening file data/iris_pipe_delim_edit.txt
+##   File opened, size = 289 bytes.
+##   Memory mapped ok
+## [03] Detect and skip BOM
+## [04] Arrange mmap to be \0 terminated
+##   \n has been found in the input and different lines can end with different line endings (e.g. mixed \n and \r\n in one file). This is common and ideal.
+## [05] Skipping initial rows if needed
+##   Skipped to line 3 in the file  Positioned on line 3 starting: &lt;&lt;5.1|3.5|1.4|0.2|&quot;setosa&quot;&gt;&gt;
+## [06] Detect separator, quoting rule, and ncolumns
+##   Detecting sep automatically ...
+##   sep=&#39;|&#39;  with 6 lines of 5 fields using quote rule 0
+##   Detected 5 columns on line 3. This line is either column names or first data row. Line starts as: &lt;&lt;5.1|3.5|1.4|0.2|&quot;setosa&quot;&gt;&gt;
+##   Quote rule picked = 0
+##   fill=false and the most number of columns found is 5
+## [07] Detect column types, good nrow estimate and whether first row is column names
+##   Number of sampling jump points = 1 because (150 bytes from row 1 to eof) / (2 * 150 jump0size) == 0
+##   Type codes (jump 000)    : 7777A  Quote rule 0
+##   &#39;header&#39; determined to be false because there are some number columns and those columns do not have a string field at the top of them
+##   All rows were sampled since file is small so we know nrow=6 exactly
+## [08] Assign column names
+## [09] Apply user overrides on column types
+##   After 0 type and 0 drop user overrides : 7777A
+## [10] Allocate memory for the datatable
+##   Allocating 5 column slots (5 - 0 dropped) with 6 rows
+## [11] Read the data
+##   jumps=[0..1), chunk_size=1048576, total_size=150
+## Read 6 rows x 5 columns from 289 bytes file in 00:00.001 wall clock time
+## [12] Finalizing the datatable
+##   Type counts:
+##          4 : float64   &#39;7&#39;
+##          1 : string    &#39;A&#39;
+## =============================
+##    0.001s (100%) Memory map 0.000GB file
+##    0.000s (  0%) sep=&#39;|&#39; ncol=5 and header detection
+##    0.000s (  0%) Column type detection using 6 sample rows
+##    0.000s (  0%) Allocation of 6 rows x 5 cols (0.000GB) of which 6 (100%) rows used
+##    0.000s (  0%) Reading 1 chunks (0 swept) of 1.000MB (each chunk 6 rows) using 1 threads
+##    +    0.000s (  0%) Parse to row-major thread buffers (grown 0 times)
+##    +    0.000s (  0%) Transpose
+##    +    0.000s (  0%) Waiting
+##    0.000s (  0%) Rereading 0 columns due to out-of-sample type exceptions
+##    0.001s        Total</code></pre>
+<pre class="r"><code>pipe_dat</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1:          5.1         3.5          1.4         0.2  setosa
+## 2:          4.9         3.0          1.4         0.2  setosa
+## 3:          4.7         3.2          1.3         0.2  setosa
+## 4:          4.6         3.1          1.5         0.2  setosa
+## 5:          5.0         3.6          1.4         0.2  setosa
+## 6:          5.4         3.9          1.7         0.4  setosa</code></pre>
+<p>Here’s a demonstration of how much faster <code>fread</code> is than <code>read.csv</code> and <code>read_csv</code> using a subset of the flights data set.</p>
+<pre class="r"><code>u1 &lt;- &quot;https://github.com/roberthryniewicz/datasets/&quot;
+u2 &lt;- &quot;blob/master/airline-dataset/flights/flights.csv?raw=true&quot;
+uu &lt;- paste0(u1, u2)
+
+system.time(dat_base &lt;- read.csv(uu)) # timing for read.csv</code></pre>
+<pre><code>##    user  system elapsed 
+##    9.33    0.08   11.16</code></pre>
+<pre class="r"><code>system.time(dat_readr &lt;- read_csv(uu)) # timing for read_csv</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   UniqueCarrier = col_character(),
+##   TailNum = col_character(),
+##   Origin = col_character(),
+##   Dest = col_character(),
+##   CancellationCode = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre><code>##    user  system elapsed 
+##    0.41    0.13    2.28</code></pre>
+<pre class="r"><code>system.time(dat_fread &lt;- fread(uu)) # timing for fread</code></pre>
+<pre><code>##    user  system elapsed 
+##    0.11    0.01    0.79</code></pre>
+<pre class="r"><code>dim(dat_fread) # rows by columns</code></pre>
+<pre><code>## [1] 100000     29</code></pre>
+<p>I would strongly encourage you to spend some time playing around with <code>fread</code>, and investigating its arguments.</p>
 <p>Considering all the benefits of <code>fread</code>, I’m actually surprised I don’t use it more.</p>
 </div>
 <div id="readxlread_excel" class="section level3">
@@ -1809,11 +1910,15 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
+## other attached packages:
+## [1] data.table_1.12.2 readr_1.3.1      
+## 
 ## loaded via a namespace (and not attached):
-##  [1] compiler_3.5.3  magrittr_1.5    tools_3.5.3     htmltools_0.3.6
-##  [5] yaml_2.2.0      Rcpp_1.0.3      stringi_1.4.3   rmarkdown_1.12 
-##  [9] knitr_1.22      stringr_1.4.0   xfun_0.6        digest_0.6.19  
-## [13] evaluate_0.13</code></pre>
+##  [1] Rcpp_1.0.3      crayon_1.3.4    digest_0.6.19   R6_2.4.1       
+##  [5] magrittr_1.5    evaluate_0.13   pillar_1.4.1    rlang_0.3.4    
+##  [9] stringi_1.4.3   rmarkdown_1.12  tools_3.5.3     stringr_1.4.0  
+## [13] hms_0.4.2       xfun_0.6        yaml_2.2.0      compiler_3.5.3 
+## [17] pkgconfig_2.0.2 htmltools_0.3.6 knitr_1.22      tibble_2.1.1</code></pre>
 </div>
 
 

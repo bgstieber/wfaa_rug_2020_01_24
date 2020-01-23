@@ -134,12 +134,14 @@ full_data <- read.table("data/iris_pipe_delim_edit.txt",
                         sep = "|",
                         skip = 2, # skip first 2 rows
                         stringsAsFactors = FALSE,
-                        col.names = column_names)
+                        col.names = column_names) # specify column names
 
 tail(full_data)
 ```
 
 ### read.csv - Missing Values are Coded Strangely
+
+What if our data has weird missing value codes, maybe due to human input.
 
 ```
 "Sepal.Length","Sepal.Width","Petal.Length","Petal.Width","Species"
@@ -179,9 +181,9 @@ library(readr)
 
 The next function I want to talk about is `read_csv` from the [__`readr`__](https://readr.tidyverse.org/) package.
 
-This function is really helpful, and it's pretty much my go-to function to read in flat files into R. It has good and well-reasoned defaults (no `stringsAsFactors = FALSE`!), and reads in the data as a [`tibble`](https://tibble.tidyverse.org/) as opposed to a `data.frame`. This makes printing the data to your console a lot better. 
+This function is really helpful, __and it's pretty much my go-to function to read in flat files into R__. It has good and well-reasoned defaults (no `stringsAsFactors = FALSE`!), and reads in the data as a [`tibble`](https://tibble.tidyverse.org/) as opposed to a `data.frame`. This makes printing the data to your console a lot better. 
 
-Rather than looking at the boring iris data, we'll instead read some data from the internet. 
+Rather than looking at the boring iris data, we'll instead read some data from the internet. Yes, if you give one of the `read` functions (even `read.table`!) a url with a csv/txt file, it will be able to read that into R (conditional on you having a connection to the internet).
 
 ```{r cache = TRUE}
 u1 <- "https://raw.githubusercontent.com/fivethirtyeight/data"
@@ -216,12 +218,12 @@ By [some measures](https://jozef.io/r917-fread-comparisons/), `fread` can be abo
 
 One of the best parts of `fread` is that you do not necessarily have to specify the delimiter in your data.
 
-For example, the pipe delimited data from above is read in easily.
+For example, the pipe delimited data from above is read in easily. In the code below I set `verbose = TRUE` to show the internal output from `fread`. In general, I'd recommend you leave this as FALSE, unless you're in serious debug mode.
 
 ```{r}
 pipe_dat <- fread("data/iris_pipe_delim_edit.txt",
                   skip = 2,
-                  verbose = TRUE,
+                  verbose = TRUE, # default is FALSE, which I recommend
                   col.names = names(iris))
 
 pipe_dat
@@ -232,7 +234,7 @@ Here's a demonstration of how much faster `fread` is than `read.csv` and `read_c
 ```{r cache = TRUE}
 u1 <- "https://github.com/roberthryniewicz/datasets/"
 u2 <- "blob/master/airline-dataset/flights/flights.csv?raw=true"
-uu <- paste0(u1, u2)
+(uu <- paste0(u1, u2))
 
 system.time(dat_base <- read.csv(uu)) # timing for read.csv
 system.time(dat_readr <- read_csv(uu)) # timing for read_csv
@@ -243,17 +245,51 @@ system.time(dat_fread <- fread(uu)) # timing for fread
 dim(dat_fread) # rows by columns
 ```
 
-I would strongly encourage you to spend some time playing around with `fread`, and investigating its arguments.
+I would strongly encourage you to spend some time playing around with `fread`, and thoroughly investigate its arguments (it's got a lot!). 
 
 Considering all the benefits of `fread`, I'm actually surprised I don't use it more. 
 
 ### readxl::read_excel
 
+```{r}
+library(readxl)
+```
 
+Maybe you've been unlucky enough to have to do some analysis using an excel file. This used to be a tedious task to get the data into R. Now, we can use the `read_excel` function from the [__`readxl`__](https://readxl.tidyverse.org/index.html) package.
+
+Excel files will typically have multiple sheets. The [excel example](https://community.tableau.com/servlet/JiveServlet/downloadBody/1236-102-2-15278/Sample%20-%20Superstore.xls) we're looking at today has three separate sheets.
+
+Reading these in is straightforward, using the `read_excel` function and the `sheet` argument.
+
+```{r}
+orders <- read_excel("data/Superstore.xls",
+                     sheet = "Orders")
+tail(orders)
+
+returns <- read_excel("data/Superstore.xls",
+                      sheet = "Returns")
+
+tail(returns)
+
+people <- read_excel("data/Superstore.xls",
+                     sheet = "People")
+
+tail(people)
+```
+
+A few things to note about `read_excel`
+
+- __VERY IMPORTANT__ Sometimes the functions fails if you have the file open. Make sure the excel file is closed before trying to read it into R!
+- The function will inform you of parsing issues/column type coercion.
+- By default, the function will return a `tibble` and not a `data.frame`.
+
+## Wrapping Up
+
+Today, we've looked at a few different ways of getting data into R from flat files. For nice flat files, it's pretty straightforward to get your data into R. If your data isn't so nice, you can generally be successful using the `fread` or `read_csv` functions, but you'll need to be very aware of the structure of your data, as well as the arguments for whatever function decide to use.
 
 ## Further Reading
 
-Here are the links I've referenced:
+Here are the links I've referenced.
 
 #### Articles
 
@@ -263,16 +299,17 @@ Here are the links I've referenced:
 
 #### Package Sites
 
-- [The __`readr`__ package](https://readr.tidyverse.org/)
-- [The __`tibble`__ package](https://tibble.tidyverse.org/)
-- [The __`data.table`__ package](https://rdatatable.gitlab.io/data.table/)
+- [__`readr`__](https://readr.tidyverse.org/)
+- [__`tibble`__](https://tibble.tidyverse.org/)
+- [__`data.table`__](https://rdatatable.gitlab.io/data.table/)
+- [__`readxl`__](https://readxl.tidyverse.org/index.html)
 
-#### Documentation
+#### Function Documentation
 
-- [`read.table` docs](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html)
-- [`readr::read_delim` docs](https://readr.tidyverse.org/reference/read_delim.html)
-- [`data.table::fread` docs](https://rdatatable.gitlab.io/data.table/reference/fread.html)
-- [`readxl::read_excel` docs](https://readxl.tidyverse.org/reference/read_excel.html)
+- [`read.table`](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html)
+- [`readr::read_delim`](https://readr.tidyverse.org/reference/read_delim.html)
+- [`data.table::fread`](https://rdatatable.gitlab.io/data.table/reference/fread.html)
+- [`readxl::read_excel`](https://readxl.tidyverse.org/reference/read_excel.html)
 
 ## Session Information
 

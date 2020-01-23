@@ -1660,7 +1660,7 @@ full_data &lt;- read.table(&quot;data/iris_pipe_delim_edit.txt&quot;,
                         sep = &quot;|&quot;,
                         skip = 2, # skip first 2 rows
                         stringsAsFactors = FALSE,
-                        col.names = column_names)
+                        col.names = column_names) # specify column names
 
 tail(full_data)</code></pre>
 <pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
@@ -1673,6 +1673,7 @@ tail(full_data)</code></pre>
 </div>
 <div id="read.csv---missing-values-are-coded-strangely" class="section level3">
 <h3>read.csv - Missing Values are Coded Strangely</h3>
+<p>What if our data has weird missing value codes, maybe due to human input.</p>
 <pre><code>&quot;Sepal.Length&quot;,&quot;Sepal.Width&quot;,&quot;Petal.Length&quot;,&quot;Petal.Width&quot;,&quot;Species&quot;
 5.1,3.5,1.4,0.2,&quot;setosa&quot;
 4.9,3,1.4,0.2,&quot;setosa&quot;
@@ -1702,8 +1703,8 @@ dat_default_NA$Sepal.Width</code></pre>
 <h3>readr::read_csv</h3>
 <pre class="r"><code>library(readr)</code></pre>
 <p>The next function I want to talk about is <code>read_csv</code> from the <a href="https://readr.tidyverse.org/"><strong><code>readr</code></strong></a> package.</p>
-<p>This function is really helpful, and it’s pretty much my go-to function to read in flat files into R. It has good and well-reasoned defaults (no <code>stringsAsFactors = FALSE</code>!), and reads in the data as a <a href="https://tibble.tidyverse.org/"><code>tibble</code></a> as opposed to a <code>data.frame</code>. This makes printing the data to your console a lot better.</p>
-<p>Rather than looking at the boring iris data, we’ll instead read some data from the internet.</p>
+<p>This function is really helpful, <strong>and it’s pretty much my go-to function to read in flat files into R</strong>. It has good and well-reasoned defaults (no <code>stringsAsFactors = FALSE</code>!), and reads in the data as a <a href="https://tibble.tidyverse.org/"><code>tibble</code></a> as opposed to a <code>data.frame</code>. This makes printing the data to your console a lot better.</p>
+<p>Rather than looking at the boring iris data, we’ll instead read some data from the internet. Yes, if you give one of the <code>read</code> functions (even <code>read.table</code>!) a url with a csv/txt file, it will be able to read that into R (conditional on you having a connection to the internet).</p>
 <pre class="r"><code>u1 &lt;- &quot;https://raw.githubusercontent.com/fivethirtyeight/data&quot;
 
 u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
@@ -1756,10 +1757,10 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 <p>There is where the <code>fread</code> function from the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package comes in handy (further reading: <a href="https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread">Convenience features of fread</a>).</p>
 <p>By <a href="https://jozef.io/r917-fread-comparisons/">some measures</a>, <code>fread</code> can be about 6 times faster than <code>read.csv</code> and about 2.5 times faster than <code>read_csv</code>.</p>
 <p>One of the best parts of <code>fread</code> is that you do not necessarily have to specify the delimiter in your data.</p>
-<p>For example, the pipe delimited data from above is read in easily.</p>
+<p>For example, the pipe delimited data from above is read in easily. In the code below I set <code>verbose = TRUE</code> to show the internal output from <code>fread</code>. In general, I’d recommend you leave this as FALSE, unless you’re in serious debug mode.</p>
 <pre class="r"><code>pipe_dat &lt;- fread(&quot;data/iris_pipe_delim_edit.txt&quot;,
                   skip = 2,
-                  verbose = TRUE,
+                  verbose = TRUE, # default is FALSE, which I recommend
                   col.names = names(iris))</code></pre>
 <pre><code>## omp_get_num_procs()==8
 ## R_DATATABLE_NUM_PROCS_PERCENT==&quot;&quot; (default 50)
@@ -1805,13 +1806,13 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 ##   Allocating 5 column slots (5 - 0 dropped) with 6 rows
 ## [11] Read the data
 ##   jumps=[0..1), chunk_size=1048576, total_size=150
-## Read 6 rows x 5 columns from 289 bytes file in 00:00.001 wall clock time
+## Read 6 rows x 5 columns from 289 bytes file in 00:00.002 wall clock time
 ## [12] Finalizing the datatable
 ##   Type counts:
 ##          4 : float64   &#39;7&#39;
 ##          1 : string    &#39;A&#39;
 ## =============================
-##    0.001s (100%) Memory map 0.000GB file
+##    0.002s (100%) Memory map 0.000GB file
 ##    0.000s (  0%) sep=&#39;|&#39; ncol=5 and header detection
 ##    0.000s (  0%) Column type detection using 6 sample rows
 ##    0.000s (  0%) Allocation of 6 rows x 5 cols (0.000GB) of which 6 (100%) rows used
@@ -1820,7 +1821,7 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 ##    +    0.000s (  0%) Transpose
 ##    +    0.000s (  0%) Waiting
 ##    0.000s (  0%) Rereading 0 columns due to out-of-sample type exceptions
-##    0.001s        Total</code></pre>
+##    0.002s        Total</code></pre>
 <pre class="r"><code>pipe_dat</code></pre>
 <pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
 ## 1:          5.1         3.5          1.4         0.2  setosa
@@ -1832,11 +1833,11 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 <p>Here’s a demonstration of how much faster <code>fread</code> is than <code>read.csv</code> and <code>read_csv</code> using a subset of the flights data set.</p>
 <pre class="r"><code>u1 &lt;- &quot;https://github.com/roberthryniewicz/datasets/&quot;
 u2 &lt;- &quot;blob/master/airline-dataset/flights/flights.csv?raw=true&quot;
-uu &lt;- paste0(u1, u2)
-
-system.time(dat_base &lt;- read.csv(uu)) # timing for read.csv</code></pre>
+(uu &lt;- paste0(u1, u2))</code></pre>
+<pre><code>## [1] &quot;https://github.com/roberthryniewicz/datasets/blob/master/airline-dataset/flights/flights.csv?raw=true&quot;</code></pre>
+<pre class="r"><code>system.time(dat_base &lt;- read.csv(uu)) # timing for read.csv</code></pre>
 <pre><code>##    user  system elapsed 
-##    9.33    0.08   11.16</code></pre>
+##    9.62    0.11   11.78</code></pre>
 <pre class="r"><code>system.time(dat_readr &lt;- read_csv(uu)) # timing for read_csv</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
@@ -1849,22 +1850,99 @@ system.time(dat_base &lt;- read.csv(uu)) # timing for read.csv</code></pre>
 ## )</code></pre>
 <pre><code>## See spec(...) for full column specifications.</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.41    0.13    2.28</code></pre>
+##    0.67    0.09    2.26</code></pre>
 <pre class="r"><code>system.time(dat_fread &lt;- fread(uu)) # timing for fread</code></pre>
 <pre><code>##    user  system elapsed 
-##    0.11    0.01    0.79</code></pre>
+##    0.08    0.08    1.97</code></pre>
 <pre class="r"><code>dim(dat_fread) # rows by columns</code></pre>
 <pre><code>## [1] 100000     29</code></pre>
-<p>I would strongly encourage you to spend some time playing around with <code>fread</code>, and investigating its arguments.</p>
+<p>I would strongly encourage you to spend some time playing around with <code>fread</code>, and thoroughly investigate its arguments (it’s got a lot!).</p>
 <p>Considering all the benefits of <code>fread</code>, I’m actually surprised I don’t use it more.</p>
 </div>
 <div id="readxlread_excel" class="section level3">
 <h3>readxl::read_excel</h3>
+<pre class="r"><code>library(readxl)</code></pre>
+<p>Maybe you’ve been unlucky enough to have to do some analysis using an excel file. This used to be a tedious task to get the data into R. Now, we can use the <code>read_excel</code> function from the <a href="https://readxl.tidyverse.org/index.html"><strong><code>readxl</code></strong></a> package.</p>
+<p>Excel files will typically have multiple sheets. The <a href="https://community.tableau.com/servlet/JiveServlet/downloadBody/1236-102-2-15278/Sample%20-%20Superstore.xls">excel example</a> we’re looking at today has three separate sheets.</p>
+<p>Reading these in is straightforward, using the <code>read_excel</code> function and the <code>sheet</code> argument.</p>
+<pre class="r"><code>orders &lt;- read_excel(&quot;data/Superstore.xls&quot;,
+                     sheet = &quot;Orders&quot;)</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L2236 / R2236C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L5276 / R5276C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L8800 / R8800C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9148 / R9148C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9149 / R9149C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9150 / R9150C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9388 / R9388C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9389 / R9389C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9390 / R9390C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9391 / R9391C12: &#39;05408&#39;</code></pre>
+<pre><code>## Warning in read_fun(path = enc2native(normalizePath(path)), sheet_i =
+## sheet, : Coercing text to numeric in L9743 / R9743C12: &#39;05408&#39;</code></pre>
+<pre class="r"><code>tail(orders)</code></pre>
+<pre><code>## # A tibble: 6 x 21
+##   `Row ID` `Order ID` `Order Date`        `Ship Date`         `Ship Mode`
+##      &lt;dbl&gt; &lt;chr&gt;      &lt;dttm&gt;              &lt;dttm&gt;              &lt;chr&gt;      
+## 1     9989 CA-2017-1~ 2017-11-17 00:00:00 2017-11-21 00:00:00 Standard C~
+## 2     9990 CA-2014-1~ 2014-01-21 00:00:00 2014-01-23 00:00:00 Second Cla~
+## 3     9991 CA-2017-1~ 2017-02-26 00:00:00 2017-03-03 00:00:00 Standard C~
+## 4     9992 CA-2017-1~ 2017-02-26 00:00:00 2017-03-03 00:00:00 Standard C~
+## 5     9993 CA-2017-1~ 2017-02-26 00:00:00 2017-03-03 00:00:00 Standard C~
+## 6     9994 CA-2017-1~ 2017-05-04 00:00:00 2017-05-09 00:00:00 Second Cla~
+## # ... with 16 more variables: `Customer ID` &lt;chr&gt;, `Customer Name` &lt;chr&gt;,
+## #   Segment &lt;chr&gt;, Country &lt;chr&gt;, City &lt;chr&gt;, State &lt;chr&gt;, `Postal
+## #   Code` &lt;dbl&gt;, Region &lt;chr&gt;, `Product ID` &lt;chr&gt;, Category &lt;chr&gt;,
+## #   `Sub-Category` &lt;chr&gt;, `Product Name` &lt;chr&gt;, Sales &lt;dbl&gt;,
+## #   Quantity &lt;dbl&gt;, Discount &lt;dbl&gt;, Profit &lt;dbl&gt;</code></pre>
+<pre class="r"><code>returns &lt;- read_excel(&quot;data/Superstore.xls&quot;,
+                      sheet = &quot;Returns&quot;)
+
+tail(returns)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Returned `Order ID`    
+##   &lt;chr&gt;    &lt;chr&gt;         
+## 1 Yes      US-2016-140172
+## 2 Yes      CA-2015-101910
+## 3 Yes      CA-2017-156958
+## 4 Yes      CA-2016-105585
+## 5 Yes      CA-2016-148796
+## 6 Yes      CA-2015-149636</code></pre>
+<pre class="r"><code>people &lt;- read_excel(&quot;data/Superstore.xls&quot;,
+                     sheet = &quot;People&quot;)
+
+tail(people)</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   Person            Region 
+##   &lt;chr&gt;             &lt;chr&gt;  
+## 1 Anna Andreadi     West   
+## 2 Chuck Magee       East   
+## 3 Kelly Williams    Central
+## 4 Cassandra Brandow South</code></pre>
+<p>A few things to note about <code>read_excel</code></p>
+<ul>
+<li><strong>VERY IMPORTANT</strong> Sometimes the functions fails if you have the file open. Make sure the excel file is closed before trying to read it into R!</li>
+<li>The function will inform you of parsing issues/column type coercion.</li>
+<li>By default, the function will return a <code>tibble</code> and not a <code>data.frame</code>.</li>
+</ul>
 </div>
+</div>
+<div id="wrapping-up" class="section level2">
+<h2>Wrapping Up</h2>
+<p>Today, we’ve looked at a few different ways of getting data into R from flat files. For nice flat files, it’s pretty straightforward to get your data into R. If your data isn’t so nice, you can generally be successful using the <code>fread</code> or <code>read_csv</code> functions, but you’ll need to be very aware of the structure of your data, as well as the arguments for whatever function decide to use.</p>
 </div>
 <div id="further-reading" class="section level2">
 <h2>Further Reading</h2>
-<p>Here are the links I’ve referenced:</p>
+<p>Here are the links I’ve referenced.</p>
 <div id="articles" class="section level4">
 <h4>Articles</h4>
 <ul>
@@ -1876,18 +1954,19 @@ system.time(dat_base &lt;- read.csv(uu)) # timing for read.csv</code></pre>
 <div id="package-sites" class="section level4">
 <h4>Package Sites</h4>
 <ul>
-<li><a href="https://readr.tidyverse.org/">The <strong><code>readr</code></strong> package</a></li>
-<li><a href="https://tibble.tidyverse.org/">The <strong><code>tibble</code></strong> package</a></li>
-<li><a href="https://rdatatable.gitlab.io/data.table/">The <strong><code>data.table</code></strong> package</a></li>
+<li><a href="https://readr.tidyverse.org/"><strong><code>readr</code></strong></a></li>
+<li><a href="https://tibble.tidyverse.org/"><strong><code>tibble</code></strong></a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a></li>
+<li><a href="https://readxl.tidyverse.org/index.html"><strong><code>readxl</code></strong></a></li>
 </ul>
 </div>
-<div id="documentation" class="section level4">
-<h4>Documentation</h4>
+<div id="function-documentation" class="section level4">
+<h4>Function Documentation</h4>
 <ul>
-<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html"><code>read.table</code> docs</a></li>
-<li><a href="https://readr.tidyverse.org/reference/read_delim.html"><code>readr::read_delim</code> docs</a></li>
-<li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>data.table::fread</code> docs</a></li>
-<li><a href="https://readxl.tidyverse.org/reference/read_excel.html"><code>readxl::read_excel</code> docs</a></li>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html"><code>read.table</code></a></li>
+<li><a href="https://readr.tidyverse.org/reference/read_delim.html"><code>readr::read_delim</code></a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>data.table::fread</code></a></li>
+<li><a href="https://readxl.tidyverse.org/reference/read_excel.html"><code>readxl::read_excel</code></a></li>
 </ul>
 </div>
 </div>
@@ -1911,14 +1990,16 @@ system.time(dat_base &lt;- read.csv(uu)) # timing for read.csv</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] data.table_1.12.2 readr_1.3.1      
+## [1] readxl_1.3.1      data.table_1.12.2 readr_1.3.1      
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.3      crayon_1.3.4    digest_0.6.19   R6_2.4.1       
-##  [5] magrittr_1.5    evaluate_0.13   pillar_1.4.1    rlang_0.3.4    
-##  [9] stringi_1.4.3   rmarkdown_1.12  tools_3.5.3     stringr_1.4.0  
-## [13] hms_0.4.2       xfun_0.6        yaml_2.2.0      compiler_3.5.3 
-## [17] pkgconfig_2.0.2 htmltools_0.3.6 knitr_1.22      tibble_2.1.1</code></pre>
+##  [1] Rcpp_1.0.3       knitr_1.22       magrittr_1.5     hms_0.4.2       
+##  [5] R6_2.4.1         rlang_0.3.4      fansi_0.4.0      stringr_1.4.0   
+##  [9] tools_3.5.3      xfun_0.6         utf8_1.1.4       cli_1.1.0       
+## [13] htmltools_0.3.6  assertthat_0.2.1 yaml_2.2.0       digest_0.6.19   
+## [17] tibble_2.1.1     crayon_1.3.4     vctrs_0.1.0      zeallot_0.1.0   
+## [21] evaluate_0.13    rmarkdown_1.12   stringi_1.4.3    compiler_3.5.3  
+## [25] pillar_1.4.1     cellranger_1.1.0 backports_1.1.4  pkgconfig_2.0.2</code></pre>
 </div>
 
 

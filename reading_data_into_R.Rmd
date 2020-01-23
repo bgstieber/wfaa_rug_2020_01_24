@@ -5,7 +5,7 @@ date: "Presented to WFAA R Users Group on 2020-01-24"
 output: 
   html_document: 
     toc: yes
-    toc_depth: 4
+    toc_depth: 3
     toc_float: true
 ---
 
@@ -56,9 +56,9 @@ Here are links to the documentation for each of the functions discussed.
 - [`data.table::fread`](https://rdatatable.gitlab.io/data.table/reference/fread.html)
 - [`readxl::read_excel`](https://readxl.tidyverse.org/reference/read_excel.html)
 
-## Examples 
+## Examples {.tabset .tabset-pills}
 
-### read.csv
+### read.csv - basics
 
 The first function you probably used to read data into R was [`read.csv`](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html).
 
@@ -98,7 +98,7 @@ dat2$Species
 
 `read.csv` works really well without specifying many arguments when your data is nice. What happens if your data is a little messier?
 
-#### Column headers are separated, weird delimiter
+### read.table - Column headers are separated, weird delimiter
 
 Here's the data:
 
@@ -117,6 +117,8 @@ Two things are weird with this data
 
 1. Column headers are separated from the data with `---`
 2. A pipe (`|`) delimiter is used
+
+These two oddities require that we use `read.table` instead of `read.csv`.
 
 ```{r}
 # first, get column names from first row of data
@@ -137,7 +139,7 @@ full_data <- read.table("data/iris_pipe_delim_edit.txt",
 tail(full_data)
 ```
 
-#### Missing Values are Coded Strangely
+### read.csv - Missing Values are Coded Strangely
 
 ```
 "Sepal.Length","Sepal.Width","Petal.Length","Petal.Width","Species"
@@ -173,27 +175,73 @@ dat_default_NA$Petal.Length
 
 The next function I want to talk about is `read_csv` from the [__`readr`__](https://readr.tidyverse.org/) package.
 
-This function is really helpful, and it's pretty much my go-to function to read in flat files into R. It has good defaults, and reads in the data as a [`tibble`](https://tibble.tidyverse.org/) as opposed to a `data.frame`. This makes printing the data to your console a lot better. 
+This function is really helpful, and it's pretty much my go-to function to read in flat files into R. It has good and well-reasoned defaults (no `stringsAsFactors = FALSE`!), and reads in the data as a [`tibble`](https://tibble.tidyverse.org/) as opposed to a `data.frame`. This makes printing the data to your console a lot better. 
 
 Rather than looking at the boring iris data, we'll instead read some data from the internet. 
 
 ```{r cache = TRUE}
 library(readr)
 
-u <- "https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv"
+u1 <- "https://raw.githubusercontent.com/fivethirtyeight/data"
 
-nfl_data <- read_csv(u)
+u2 <- "/master/college-majors/all-ages.csv"
 
-tail(nfl_data)
+(u <- paste0(u1, u2))
+
+college_data <- read_csv(u) # informative parsing printing
+
+college_data # nice printing of data, don't need head() or tail()
 ```
 
+`read_csv` has a few arguments I should highlight:
 
-
+- __`na`__: Character vector of strings to interpret as missing values. (this is like `na.strings` in `read.csv`)
+- __`skip`__: Number of lines to skip before reading data.
+- __`n_max`__: Maximum number of records to read.
+- __`col_types`__: allows you to specify the column types for your data. I typically leave this as the default, but it can be helpful if you're trying to coerce a certain column to certain data type
 
 ### data.table::fread
 
+Now, sometimes I'm dealing with some really nasty data set that is large and unwieldy. `read_csv` is good for maybe 80-90% of data inputs, but sometimes we need something more powerful.
 
+There is where the `fread` function from the [__`data.table`__](https://rdatatable.gitlab.io/data.table/) package comes in handy (further reading: [Convenience features of fread](https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread)).
+
+By [some measures](https://jozef.io/r917-fread-comparisons/), `fread` can be about 6 times faster than `read.csv` and about 2.5 times faster than `read_csv`.
+
+
+
+Considering all the benefits of `fread`, I'm actually surprised I don't use it more. 
 
 ### readxl::read_excel
+
+
+## Further Reading
+
+Here are the links I've referenced:
+
+#### Articles
+
+- [stringsAsFactors: An unauthorized biography](https://simplystatistics.org/2015/07/24/stringsasfactors-an-unauthorized-biography/)
+- [Convenience features of fread](https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread)
+- [How data.table's fread can save you a lot of time and memory, and take input from shell commands](https://jozef.io/r917-fread-comparisons/)
+
+#### Package Sites
+
+- [The __`readr`__ package](https://readr.tidyverse.org/)
+- [The __`tibble`__ package](https://tibble.tidyverse.org/)
+- [The __`data.table`__ package](https://rdatatable.gitlab.io/data.table/)
+
+#### Documentation
+
+- [`read.table` docs](https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html)
+- [`readr::read_delim` docs](https://readr.tidyverse.org/reference/read_delim.html)
+- [`data.table::fread` docs](https://rdatatable.gitlab.io/data.table/reference/fread.html)
+- [`readxl::read_excel` docs](https://readxl.tidyverse.org/reference/read_excel.html)
+
+## Session Information
+
+```{r}
+sessionInfo()
+```
 
 

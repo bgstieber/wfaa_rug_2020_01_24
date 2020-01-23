@@ -1440,7 +1440,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2,h3,h4",
+      selectors: "h1,h2,h3",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
@@ -1594,10 +1594,10 @@ write.table(head(iris),
 <li><a href="https://readxl.tidyverse.org/reference/read_excel.html"><code>readxl::read_excel</code></a></li>
 </ul>
 </div>
-<div id="examples" class="section level2">
+<div id="examples" class="section level2 tabset tabset-pills">
 <h2>Examples</h2>
-<div id="read.csv" class="section level3">
-<h3>read.csv</h3>
+<div id="read.csv---basics" class="section level3">
+<h3>read.csv - basics</h3>
 <p>The first function you probably used to read data into R was <a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html"><code>read.csv</code></a>.</p>
 <p>Let’s suppose you get a basic flat file</p>
 <pre><code>&quot;Sepal.Length&quot;,&quot;Sepal.Width&quot;,&quot;Petal.Length&quot;,&quot;Petal.Width&quot;,&quot;Species&quot;
@@ -1627,8 +1627,9 @@ tail(dat)</code></pre>
 dat2$Species</code></pre>
 <pre><code>## [1] &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot; &quot;setosa&quot;</code></pre>
 <p><code>read.csv</code> works really well without specifying many arguments when your data is nice. What happens if your data is a little messier?</p>
-<div id="column-headers-are-separated-weird-delimiter" class="section level4">
-<h4>Column headers are separated, weird delimiter</h4>
+</div>
+<div id="read.table---column-headers-are-separated-weird-delimiter" class="section level3">
+<h3>read.table - Column headers are separated, weird delimiter</h3>
 <p>Here’s the data:</p>
 <pre><code>&quot;Sepal.Length&quot;|&quot;Sepal.Width&quot;|&quot;Petal.Length&quot;|&quot;Petal.Width&quot;|&quot;Species&quot;
 ----------------------------------------------------------------- 
@@ -1643,6 +1644,7 @@ dat2$Species</code></pre>
 <li>Column headers are separated from the data with <code>---</code></li>
 <li>A pipe (<code>|</code>) delimiter is used</li>
 </ol>
+<p>These two oddities require that we use <code>read.table</code> instead of <code>read.csv</code>.</p>
 <pre class="r"><code># first, get column names from first row of data
 column_names &lt;- read.table(&quot;data/iris_pipe_delim_edit.txt&quot;,
                            sep = &quot;|&quot;, # pipe delim
@@ -1669,8 +1671,8 @@ tail(full_data)</code></pre>
 ## 5          5.0         3.6          1.4         0.2  setosa
 ## 6          5.4         3.9          1.7         0.4  setosa</code></pre>
 </div>
-<div id="missing-values-are-coded-strangely" class="section level4">
-<h4>Missing Values are Coded Strangely</h4>
+<div id="read.csv---missing-values-are-coded-strangely" class="section level3">
+<h3>read.csv - Missing Values are Coded Strangely</h3>
 <pre><code>&quot;Sepal.Length&quot;,&quot;Sepal.Width&quot;,&quot;Petal.Length&quot;,&quot;Petal.Width&quot;,&quot;Species&quot;
 5.1,3.5,1.4,0.2,&quot;setosa&quot;
 4.9,3,1.4,0.2,&quot;setosa&quot;
@@ -1696,68 +1698,122 @@ dat_default_NA$Sepal.Width</code></pre>
 <pre class="r"><code>dat_default_NA$Petal.Length</code></pre>
 <pre><code>## [1] 1.4 1.4  NA 1.5 1.4  NA</code></pre>
 </div>
-</div>
 <div id="readrread_csv" class="section level3">
 <h3>readr::read_csv</h3>
 <p>The next function I want to talk about is <code>read_csv</code> from the <a href="https://readr.tidyverse.org/"><strong><code>readr</code></strong></a> package.</p>
-<p>This function is really helpful, and it’s pretty much my go-to function to read in flat files into R. It has good defaults, and reads in the data as a <a href="https://tibble.tidyverse.org/"><code>tibble</code></a> as opposed to a <code>data.frame</code>. This makes printing the data to your console a lot better.</p>
+<p>This function is really helpful, and it’s pretty much my go-to function to read in flat files into R. It has good and well-reasoned defaults (no <code>stringsAsFactors = FALSE</code>!), and reads in the data as a <a href="https://tibble.tidyverse.org/"><code>tibble</code></a> as opposed to a <code>data.frame</code>. This makes printing the data to your console a lot better.</p>
 <p>Rather than looking at the boring iris data, we’ll instead read some data from the internet.</p>
 <pre class="r"><code>library(readr)
 
-u &lt;- &quot;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&quot;
+u1 &lt;- &quot;https://raw.githubusercontent.com/fivethirtyeight/data&quot;
 
-nfl_data &lt;- read_csv(u)</code></pre>
+u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
+
+(u &lt;- paste0(u1, u2))</code></pre>
+<pre><code>## [1] &quot;https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/all-ages.csv&quot;</code></pre>
+<pre class="r"><code>college_data &lt;- read_csv(u) # informative parsing printing</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
-##   .default = col_logical(),
-##   date = col_date(format = &quot;&quot;),
-##   season = col_double(),
-##   neutral = col_double(),
-##   team1 = col_character(),
-##   team2 = col_character(),
-##   elo1_pre = col_double(),
-##   elo2_pre = col_double(),
-##   elo_prob1 = col_double(),
-##   elo_prob2 = col_double(),
-##   elo1_post = col_double(),
-##   elo2_post = col_double(),
-##   score1 = col_double(),
-##   score2 = col_double()
+##   Major_code = col_double(),
+##   Major = col_character(),
+##   Major_category = col_character(),
+##   Total = col_double(),
+##   Employed = col_double(),
+##   Employed_full_time_year_round = col_double(),
+##   Unemployed = col_double(),
+##   Unemployment_rate = col_double(),
+##   Median = col_double(),
+##   P25th = col_double(),
+##   P75th = col_double()
 ## )</code></pre>
-<pre><code>## See spec(...) for full column specifications.</code></pre>
-<pre><code>## Warning: 230633 parsing failures.
-##  row     col           expected actual                                                       file
-## 1054 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
-## 1115 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
-## 1169 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
-## 1224 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
-## 1280 playoff 1/0/T/F/TRUE/FALSE      c &#39;https://projects.fivethirtyeight.com/nfl-api/nfl_elo.csv&#39;
-## .... ....... .................. ...... ..........................................................
-## See problems(...) for more details.</code></pre>
-<pre class="r"><code>tail(nfl_data)</code></pre>
-<pre><code>## # A tibble: 6 x 30
-##   date       season neutral playoff team1 team2 elo1_pre elo2_pre elo_prob1
-##   &lt;date&gt;      &lt;dbl&gt;   &lt;dbl&gt; &lt;lgl&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
-## 1 2020-01-11   2019       0 NA      BAL   TEN      1753.    1615.     0.763
-## 2 2020-01-12   2019       0 NA      KC    HOU      1695.    1552.     0.767
-## 3 2020-01-12   2019       0 NA      GB    SEA      1632.    1579.     0.663
-## 4 2020-01-19   2019       0 NA      KC    TEN      1708.    1663.     0.653
-## 5 2020-01-19   2019       0 NA      SF    GB       1652.    1643.     0.604
-## 6 2020-02-02   2019       1 NA      KC    SF       1724.    1674.     0.571
-## # ... with 21 more variables: elo_prob2 &lt;dbl&gt;, elo1_post &lt;dbl&gt;,
-## #   elo2_post &lt;dbl&gt;, qbelo1_pre &lt;lgl&gt;, qbelo2_pre &lt;lgl&gt;, qb1 &lt;lgl&gt;,
-## #   qb2 &lt;lgl&gt;, qb1_value_pre &lt;lgl&gt;, qb2_value_pre &lt;lgl&gt;, qb1_adj &lt;lgl&gt;,
-## #   qb2_adj &lt;lgl&gt;, qbelo_prob1 &lt;lgl&gt;, qbelo_prob2 &lt;lgl&gt;,
-## #   qb1_game_value &lt;lgl&gt;, qb2_game_value &lt;lgl&gt;, qb1_value_post &lt;lgl&gt;,
-## #   qb2_value_post &lt;lgl&gt;, qbelo1_post &lt;lgl&gt;, qbelo2_post &lt;lgl&gt;,
-## #   score1 &lt;dbl&gt;, score2 &lt;dbl&gt;</code></pre>
+<pre class="r"><code>college_data # nice printing of data, don&#39;t need head() or tail()</code></pre>
+<pre><code>## # A tibble: 173 x 11
+##    Major_code Major Major_category  Total Employed Employed_full_t~
+##         &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;            &lt;dbl&gt;
+##  1       1100 GENE~ Agriculture &amp;~ 128148    90245            74078
+##  2       1101 AGRI~ Agriculture &amp;~  95326    76865            64240
+##  3       1102 AGRI~ Agriculture &amp;~  33955    26321            22810
+##  4       1103 ANIM~ Agriculture &amp;~ 103549    81177            64937
+##  5       1104 FOOD~ Agriculture &amp;~  24280    17281            12722
+##  6       1105 PLAN~ Agriculture &amp;~  79409    63043            51077
+##  7       1106 SOIL~ Agriculture &amp;~   6586     4926             4042
+##  8       1199 MISC~ Agriculture &amp;~   8549     6392             5074
+##  9       1301 ENVI~ Biology &amp; Lif~ 106106    87602            65238
+## 10       1302 FORE~ Agriculture &amp;~  69447    48228            39613
+## # ... with 163 more rows, and 5 more variables: Unemployed &lt;dbl&gt;,
+## #   Unemployment_rate &lt;dbl&gt;, Median &lt;dbl&gt;, P25th &lt;dbl&gt;, P75th &lt;dbl&gt;</code></pre>
+<p><code>read_csv</code> has a few arguments I should highlight:</p>
+<ul>
+<li><strong><code>na</code></strong>: Character vector of strings to interpret as missing values. (this is like <code>na.strings</code> in <code>read.csv</code>)</li>
+<li><strong><code>skip</code></strong>: Number of lines to skip before reading data.</li>
+<li><strong><code>n_max</code></strong>: Maximum number of records to read.</li>
+<li><strong><code>col_types</code></strong>: allows you to specify the column types for your data. I typically leave this as the default, but it can be helpful if you’re trying to coerce a certain column to certain data type</li>
+</ul>
 </div>
 <div id="data.tablefread" class="section level3">
 <h3>data.table::fread</h3>
+<p>Now, sometimes I’m dealing with some really nasty data set that is large and unwieldy. <code>read_csv</code> is good for maybe 80-90% of data inputs, but sometimes we need something more powerful.</p>
+<p>There is where the <code>fread</code> function from the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package comes in handy (further reading: <a href="https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread">Convenience features of fread</a>).</p>
+<p>By <a href="https://jozef.io/r917-fread-comparisons/">some measures</a>, <code>fread</code> can be about 6 times faster than <code>read.csv</code> and about 2.5 times faster than <code>read_csv</code>.</p>
+<p>Considering all the benefits of <code>fread</code>, I’m actually surprised I don’t use it more.</p>
 </div>
 <div id="readxlread_excel" class="section level3">
 <h3>readxl::read_excel</h3>
 </div>
+</div>
+<div id="further-reading" class="section level2">
+<h2>Further Reading</h2>
+<p>Here are the links I’ve referenced:</p>
+<div id="articles" class="section level4">
+<h4>Articles</h4>
+<ul>
+<li><a href="https://simplystatistics.org/2015/07/24/stringsasfactors-an-unauthorized-biography/">stringsAsFactors: An unauthorized biography</a></li>
+<li><a href="https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread">Convenience features of fread</a></li>
+<li><a href="https://jozef.io/r917-fread-comparisons/">How data.table’s fread can save you a lot of time and memory, and take input from shell commands</a></li>
+</ul>
+</div>
+<div id="package-sites" class="section level4">
+<h4>Package Sites</h4>
+<ul>
+<li><a href="https://readr.tidyverse.org/">The <strong><code>readr</code></strong> package</a></li>
+<li><a href="https://tibble.tidyverse.org/">The <strong><code>tibble</code></strong> package</a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/">The <strong><code>data.table</code></strong> package</a></li>
+</ul>
+</div>
+<div id="documentation" class="section level4">
+<h4>Documentation</h4>
+<ul>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/utils/html/read.table.html"><code>read.table</code> docs</a></li>
+<li><a href="https://readr.tidyverse.org/reference/read_delim.html"><code>readr::read_delim</code> docs</a></li>
+<li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>data.table::fread</code> docs</a></li>
+<li><a href="https://readxl.tidyverse.org/reference/read_excel.html"><code>readxl::read_excel</code> docs</a></li>
+</ul>
+</div>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session Information</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>## R version 3.5.3 (2019-03-11)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows 10 x64 (build 17763)
+## 
+## Matrix products: default
+## 
+## locale:
+## [1] LC_COLLATE=English_United States.1252 
+## [2] LC_CTYPE=English_United States.1252   
+## [3] LC_MONETARY=English_United States.1252
+## [4] LC_NUMERIC=C                          
+## [5] LC_TIME=English_United States.1252    
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## loaded via a namespace (and not attached):
+##  [1] compiler_3.5.3  magrittr_1.5    tools_3.5.3     htmltools_0.3.6
+##  [5] yaml_2.2.0      Rcpp_1.0.3      stringi_1.4.3   rmarkdown_1.12 
+##  [9] knitr_1.22      stringr_1.4.0   xfun_0.6        digest_0.6.19  
+## [13] evaluate_0.13</code></pre>
 </div>
 
 

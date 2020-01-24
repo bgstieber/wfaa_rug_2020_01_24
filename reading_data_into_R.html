@@ -1593,6 +1593,7 @@ write.table(head(iris),
 <li><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html"><code>data.table::fread</code></a></li>
 <li><a href="https://readxl.tidyverse.org/reference/read_excel.html"><code>readxl::read_excel</code></a></li>
 </ul>
+<p>You can find all the code and data <a href="https://github.com/bgstieber/wfaa_rug_2020_01_24">on my GitHub</a>. If you <a href="https://help.github.com/en/desktop/contributing-to-projects/cloning-a-repository-from-github-to-github-desktop">clone that repository</a> you should be able to run all of this on your own machine.</p>
 </div>
 <div id="examples" class="section level2 tabset tabset-pills">
 <h2>Examples</h2>
@@ -1632,6 +1633,7 @@ dat2$Species</code></pre>
 <h3>read.table - Column headers are separated, weird delimiter</h3>
 <p>Here’s the data:</p>
 <pre><code>&quot;Sepal.Length&quot;|&quot;Sepal.Width&quot;|&quot;Petal.Length&quot;|&quot;Petal.Width&quot;|&quot;Species&quot;
+-----------------------------------------------------------------
 ----------------------------------------------------------------- 
 5.1|3.5|1.4|0.2|&quot;setosa&quot;
 4.9|3|1.4|0.2|&quot;setosa&quot;
@@ -1641,8 +1643,14 @@ dat2$Species</code></pre>
 5.4|3.9|1.7|0.4|&quot;setosa&quot;</code></pre>
 <p>Two things are weird with this data</p>
 <ol style="list-style-type: decimal">
-<li>Column headers are separated from the data with <code>---</code></li>
-<li>A pipe (<code>|</code>) delimiter is used</li>
+<li>Column headers are separated from the data with two rows <code>---</code>
+<ul>
+<li>Use <code>skip</code> argument</li>
+</ul></li>
+<li>A pipe (<code>|</code>) delimiter is used
+<ul>
+<li>Use <code>sep = &quot;|&quot;</code> argument</li>
+</ul></li>
 </ol>
 <p>These two oddities require that we use <code>read.table</code> instead of <code>read.csv</code>.</p>
 <pre class="r"><code># first, get column names from first row of data
@@ -1658,7 +1666,7 @@ column_names &lt;- read.table(&quot;data/iris_pipe_delim_edit.txt&quot;,
 <pre class="r"><code># then, read in remaining rows, using `skip` argument
 full_data &lt;- read.table(&quot;data/iris_pipe_delim_edit.txt&quot;,
                         sep = &quot;|&quot;,
-                        skip = 2, # skip first 2 rows
+                        skip = 3, # skip first 3 rows
                         stringsAsFactors = FALSE,
                         col.names = column_names) # specify column names
 
@@ -1682,7 +1690,7 @@ tail(full_data)</code></pre>
 5,MISSING,1.4,0.2,&quot;setosa&quot;
 5.4,3.9,9999,0.4,&quot;setosa&quot;</code></pre>
 <p>By default, when you’re reading in data with the <code>read.table</code>/<code>read.csv</code> family of functions, R treats any columns containing the string <code>&quot;NA&quot;</code> as an <code>NA</code> value. Sometimes we have missing values that take other values, like <code>999</code>, <code>&quot;&quot;</code>, and <code>NULL</code>. Using the <code>na.strings</code> argument can help us with this.</p>
-<pre class="r"><code>dat_default_NA &lt;- read.csv(&quot;data/iris_weird_NA_edit.txt&quot;,
+<pre class="r"><code>dat_default_NA &lt;- read.csv(&quot;data/iris_weird_NA_edit.txt&quot;, 
                            stringsAsFactors = FALSE)
 
 dat_default_NA$Sepal.Width</code></pre>
@@ -1747,19 +1755,19 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 <li><strong><code>na</code></strong>: Character vector of strings to interpret as missing values. (this is like <code>na.strings</code> in <code>read.csv</code>)</li>
 <li><strong><code>skip</code></strong>: Number of lines to skip before reading data.</li>
 <li><strong><code>n_max</code></strong>: Maximum number of records to read.</li>
-<li><strong><code>col_types</code></strong>: allows you to specify the column types for your data. I typically leave this as the default, but it can be helpful if you’re trying to coerce a certain column to certain data type</li>
+<li><strong><code>col_types</code></strong>: allows you to specify the column types for your data. <strong>I typically leave this as is, and let the parser do its job</strong>, but it can be helpful if you’re trying to coerce a certain column to certain data type</li>
 </ul>
 </div>
 <div id="data.tablefread" class="section level3">
 <h3>data.table::fread</h3>
 <pre class="r"><code>library(data.table)</code></pre>
-<p>Now, sometimes I’m dealing with some really nasty data set that is large and unwieldy. <code>read_csv</code> is good for maybe 80-90% of data inputs, but sometimes we need something more powerful.</p>
+<p>Now, sometimes you might be dealing with some really nasty data that is large and unwieldy. <code>read_csv</code> is good for maybe 80-90% of data files, but sometimes we need something more powerful.</p>
 <p>There is where the <code>fread</code> function from the <a href="https://rdatatable.gitlab.io/data.table/"><strong><code>data.table</code></strong></a> package comes in handy (further reading: <a href="https://github.com/Rdatatable/data.table/wiki/Convenience-features-of-fread">Convenience features of fread</a>).</p>
 <p>By <a href="https://jozef.io/r917-fread-comparisons/">some measures</a>, <code>fread</code> can be about 6 times faster than <code>read.csv</code> and about 2.5 times faster than <code>read_csv</code>.</p>
 <p>One of the best parts of <code>fread</code> is that you do not necessarily have to specify the delimiter in your data.</p>
 <p>For example, the pipe delimited data from above is read in easily. In the code below I set <code>verbose = TRUE</code> to show the internal output from <code>fread</code>. In general, I’d recommend you leave this as FALSE, unless you’re in serious debug mode.</p>
 <pre class="r"><code>pipe_dat &lt;- fread(&quot;data/iris_pipe_delim_edit.txt&quot;,
-                  skip = 2,
+                  skip = 3, # homework: what happens if you don&#39;t specify skip?
                   verbose = TRUE, # default is FALSE, which I recommend
                   col.names = names(iris))</code></pre>
 <pre><code>## omp_get_num_procs()==8
@@ -1776,22 +1784,22 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 ##   Using 4 threads (omp_get_max_threads()=8, nth=4)
 ##   NAstrings = [&lt;&lt;NA&gt;&gt;]
 ##   None of the NAstrings look like numbers.
-##   skip num lines = 2
+##   skip num lines = 3
 ##   show progress = 0
 ##   0/1 column will be read as integer
 ## [02] Opening the file
 ##   Opening file data/iris_pipe_delim_edit.txt
-##   File opened, size = 289 bytes.
+##   File opened, size = 356 bytes.
 ##   Memory mapped ok
 ## [03] Detect and skip BOM
 ## [04] Arrange mmap to be \0 terminated
 ##   \n has been found in the input and different lines can end with different line endings (e.g. mixed \n and \r\n in one file). This is common and ideal.
 ## [05] Skipping initial rows if needed
-##   Skipped to line 3 in the file  Positioned on line 3 starting: &lt;&lt;5.1|3.5|1.4|0.2|&quot;setosa&quot;&gt;&gt;
+##   Skipped to line 4 in the file  Positioned on line 4 starting: &lt;&lt;5.1|3.5|1.4|0.2|&quot;setosa&quot;&gt;&gt;
 ## [06] Detect separator, quoting rule, and ncolumns
 ##   Detecting sep automatically ...
 ##   sep=&#39;|&#39;  with 6 lines of 5 fields using quote rule 0
-##   Detected 5 columns on line 3. This line is either column names or first data row. Line starts as: &lt;&lt;5.1|3.5|1.4|0.2|&quot;setosa&quot;&gt;&gt;
+##   Detected 5 columns on line 4. This line is either column names or first data row. Line starts as: &lt;&lt;5.1|3.5|1.4|0.2|&quot;setosa&quot;&gt;&gt;
 ##   Quote rule picked = 0
 ##   fill=false and the most number of columns found is 5
 ## [07] Detect column types, good nrow estimate and whether first row is column names
@@ -1806,7 +1814,7 @@ u2 &lt;- &quot;/master/college-majors/all-ages.csv&quot;
 ##   Allocating 5 column slots (5 - 0 dropped) with 6 rows
 ## [11] Read the data
 ##   jumps=[0..1), chunk_size=1048576, total_size=150
-## Read 6 rows x 5 columns from 289 bytes file in 00:00.002 wall clock time
+## Read 6 rows x 5 columns from 356 bytes file in 00:00.002 wall clock time
 ## [12] Finalizing the datatable
 ##   Type counts:
 ##          4 : float64   &#39;7&#39;
@@ -1930,7 +1938,7 @@ tail(people)</code></pre>
 ## 4 Cassandra Brandow South</code></pre>
 <p>A few things to note about <code>read_excel</code></p>
 <ul>
-<li><strong>VERY IMPORTANT</strong> Sometimes the functions fails if you have the file open. Make sure the excel file is closed before trying to read it into R!</li>
+<li><strong>VERY IMPORTANT</strong> Sometimes the function fails if you have the file open. Make sure the excel file is closed before trying to read it into R!</li>
 <li>The function will inform you of parsing issues/column type coercion.</li>
 <li>By default, the function will return a <code>tibble</code> and not a <code>data.frame</code>.</li>
 </ul>
